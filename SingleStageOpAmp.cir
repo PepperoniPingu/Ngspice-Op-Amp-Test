@@ -1,0 +1,38 @@
+.TITLE Single Stage Op-Amp
+
+
+.SUBCKT opAmp vdd vss inputP inputN output
+.INCLUDE irlml2246trpbf.spi	$ P-channel signal MOSFET - drain, gate, source
+.INCLUDE irlml6346trpbf.spi	$ N-channel signal MOSFET - drain, gate, source
+
+* Input pair
+X1 1 inputP tail irlml6346trpbf
+X2 output inputN tail irlml6346trpbf
+
+* Current mirror to draw tail current
+R1 vdd 2 100k
+X3 2 2 vss irlml6346trpbf
+X4 tail 2 vss irlml6346trpbf
+
+* Current mirror for input pair
+X5 1 1 vdd irlml2246trpbf
+X6 output 1 vdd irlml2246trpbf
+
+.ENDS
+
+X1 vdd vss in out out opAmp
+
+* Power supply
+VP vdd 0 DC 5	$ Positive rail
+VN 0 vss 5	$ Negative rail
+
+* Test setup
+VDiff in 0 SIN(0 5 100 0 0 0)
+
+
+.CONTROL
+TRAN 100u 10m
+PLOT in out X1.tail XLIMIT 0 10m
+.ENDC
+
+.END
