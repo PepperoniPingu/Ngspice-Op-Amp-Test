@@ -3,3 +3,6 @@ This is a Ngspice model of a simple operational amplifier consisting of an input
 
 The repository also contains a single stage op amp circuit (SingleStageOpAmp.cir) that only contains the first stage of the complete operational amplifier (OpAmp.cir). 
 
+To run: 
+1. Have Ngspice installed
+2. In this directory, type ngspice OpAmp.cir
