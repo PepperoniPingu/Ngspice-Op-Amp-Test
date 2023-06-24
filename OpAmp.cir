@@ -24,6 +24,7 @@ X25 inDrainN inDrainP vdd irlml2246trpbf
 
 * Intermediate stage
 X31 outputPChGate inDrainN vdd irlml2246trpbf
+C31 inDrainN outputPChGate 90p $ Compensation capacitor
 R32 outputPChGate outputNChGate 5k
 X32 outputNChGate ISet vss irlml6346trpbf
 
@@ -42,7 +43,7 @@ VPOutputStage vddOutputStage 0 DC 5 $ Seperate positive rail for output stage in
 VNOutputStage 0 vssOutputStage DC 5 $ Seperate negative rail for output stage in order the mesure its current
 
 * Test setup
-VIn in 0 DC 0 AC 1 SIN(0 1 100 0 0 90) $ PULSE(-5 5 0 20m 20m 1 1) -550u offset for 0v intermediate
+VIn in 0 DC 0 AC 10u SIN(0 100m 100 0 0 90) $ PULSE(-5 5 0 20m 20m 1 1) -550u offset for 0v intermediate
 R1 out feedback 9k
 R2 feedback 0 1k
 
@@ -50,11 +51,14 @@ R2 feedback 0 1k
 .CONTROL
 TRAN 100u 20m
 PLOT in out XLIMIT 0 20m YLIMIT -5 5
+PLOT out/in VS in XLIMIT -30m 30m
 
+SET UNITS = degrees
 AC DEC 10 1 1MEG
-PLOT VDB(out) XLIMIT 1 1MEG
-PLOT CPH(out)*180/PI XLIMIT 1 1MEG
-MEAS AC maxGain MAX VDB(out) FROM=1 TO=1MEG
+LET gain = V(out)/V(in)
+PLOT DB(gain) XLIMIT 1 1MEG
+PLOT CPH(out) XLIMIT 1 1MEG YLIMIT -360 0 YDELTA 45
+MEAS AC maxGain MAX VDB(gain) FROM=1 TO=1MEG
 .ENDC
 
 .END
