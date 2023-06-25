@@ -1,0 +1,59 @@
+.TITLE Current Copying Op Amp
+
+.SUBCKT opAmp vdd vddOutputStage vss vssOutputStage inputP inputN output
+.INCLUDE irlml2246trpbf.spi	$ P-channel signal MOSFET - drain, gate, source
+.INCLUDE irlml6346trpbf.spi	$ N-channel signal MOSFET - drain, gate, source
+
+* Current mirror for tail current and biasing in intermediate stage
+R11 vdd ISet 10k
+X11 ISet ISet vss irlml6346trpbf
+
+* Input pair
+X21 outputPChGate inputP tail irlml6346trpbf
+X22 inDrainN inputN tail irlml6346trpbf 
+
+* Tail
+X23 tail ISet vss irlml6346trpbf
+
+* Current copiers
+X24 outputPChGate outputPChGate vdd irlml2246trpbf
+X25 inDrainN inDrainN vdd irlml2246trpbf
+
+* P-channel current bias to N-channel current bias converter
+X31 outputNChGate inDrainN vdd irlml2246trpbf
+X32 outputNChGate outputNChGate vss irlml6346trpbf
+
+* Output stage
+X41 output outputPChGate vddOutputStage irlml2246trpbf
+X42 output outputNChGate vssOutputStage irlml6346trpbf
+
+.ENDS
+
+* Test setup
+X1 vdd vddOutputStage vss vssOutputStage in feedback out opAmp
+VIn in 0 DC 0 AC 100u SIN(0 300m 100 0 0 90)
+R1 out feedback 9k
+R2 feedback 0 1k
+* R3 out 0 10k $ Load
+
+* Power supply
+VP vdd 0 DC 5	$ Positive rail
+VN 0 vss DC 5	$ Negative rail
+VPOutputStage vddOutputStage 0 DC 5 $ Seperate positive rail for output stage in order the mesure its current
+VNOutputStage 0 vssOutputStage DC 5 $ Seperate negative rail for output stage in order the mesure its current
+
+.CONTROL
+TRAN 10u 20m
+PLOT in out XLIMIT 0 20m YLIMIT -5 5
+* PLOT X1.inDrainN X1.outputPChGate
+* PLOT I(VPOutputStage) I(VNOutputStage)
+
+SET UNITS = degrees
+AC DEC 10 1 1MEG
+LET gain = V(out)/V(in)
+PLOT DB(gain) XLIMIT 1 1MEG
+PLOT CPH(out) XLIMIT 1 1MEG YLIMIT -180 180 YDELTA 45
+* MEAS AC maxGain MAX VDB(gain) FROM=1 TO=1MEG
+.ENDC
+
+.END

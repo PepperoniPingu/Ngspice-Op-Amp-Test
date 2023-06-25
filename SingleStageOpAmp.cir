@@ -20,19 +20,24 @@ X6 output 1 vdd irlml2246trpbf
 
 .ENDS
 
-X1 vdd vss in out out opAmp
-
 * Power supply
 VP vdd 0 DC 5	$ Positive rail
 VN 0 vss 5	$ Negative rail
 
 * Test setup
-VDiff in 0 SIN(0 5 100 0 0 0)
+X1 vdd vss in 0 out opAmp
+VDiff in 0 DC 0 AC 1m SIN(0 5 100 0 0 0)
 
 
 .CONTROL
 TRAN 100u 10m
 PLOT in out X1.tail XLIMIT 0 10m
+
+SET UNITS = DEGREES
+AC DEC 10 1 1MEG
+LET gain = V(out)/V(in)
+PLOT DB(gain) XLIMIT 1 1MEG
+PLOT CPH(out) XLIMIT 1 1MEG YLIMIT -180 0 YDELTA 45
 .ENDC
 
 .END
